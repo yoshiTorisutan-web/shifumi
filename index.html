@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shifumi</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='26' font-size='26'>✊</text></svg>"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .winner {
+        animation: glow 0.5s ease;
+      }
+      @keyframes glow {
+        0% {
+          box-shadow: 0 0 0px #fff;
+        }
+        50% {
+          box-shadow: 0 0 12px #facc15;
+        }
+        100% {
+          box-shadow: 0 0 0px #fff;
+        }
+      }
+      .winner {
+        animation: glow 0.5s ease;
+      }
+      @keyframes glow {
+        0% {
+          box-shadow: 0 0 0px #fff;
+        }
+        50% {
+          box-shadow: 0 0 12px #facc15;
+        }
+        100% {
+          box-shadow: 0 0 0px #fff;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-50 flex items-center justify-center min-h-screen font-sans"
+  >
+    <div
+      class="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full text-center"
+    >
+      <h1 class="text-3xl font-bold mb-10 text-gray-800">✊Shifumi✋</h1>
+
+      <!-- Score -->
+      <div class="flex justify-around mb-6 gap-4">
+        <div
+          class="flex flex-col items-center bg-gray-100 rounded-xl px-6 py-3 shadow w-1/2"
+        >
+          <span class="text-gray-600 font-semibold">Joueur</span>
+          <span id="playerScore" class="text-3xl font-bold text-green-600"
+            >0</span
+          >
+        </div>
+        <div
+          class="flex flex-col items-center bg-gray-100 rounded-xl px-6 py-3 shadow w-1/2"
+        >
+          <span class="text-gray-600 font-semibold">Ordinateur</span>
+          <span id="computerScore" class="text-3xl font-bold text-red-600"
+            >0</span
+          >
+        </div>
+      </div>
+
+      <!-- Choix -->
+      <div class="flex justify-around mb-6 gap-3">
+        <button
+          data-choice="Pierre"
+          class="choice-btn bg-red-100 text-red-600 font-semibold px-6 py-3 rounded-xl shadow hover:bg-red-200 transition"
+        >
+          ✊ Pierre
+        </button>
+        <button
+          data-choice="Feuille"
+          class="choice-btn bg-green-100 text-green-600 font-semibold px-6 py-3 rounded-xl shadow hover:bg-green-200 transition"
+        >
+          ✋ Feuille
+        </button>
+        <button
+          data-choice="Ciseaux"
+          class="choice-btn bg-blue-100 text-blue-600 font-semibold px-6 py-3 rounded-xl shadow hover:bg-blue-200 transition"
+        >
+          ✌️ Ciseaux
+        </button>
+      </div>
+
+      <!-- Choix affichés -->
+      <div class="mb-6 flex justify-around items-center gap-4">
+        <div
+          class="flex flex-col items-center bg-green-50 rounded-xl px-6 py-4 shadow w-1/2 transition duration-300"
+          id="playerChoiceCard"
+        >
+          <span class="text-gray-600 font-semibold mb-1">Ton choix</span>
+          <span id="playerChoice" class="text-4xl font-bold">–</span>
+        </div>
+        <div
+          class="flex flex-col items-center bg-red-50 rounded-xl px-6 py-4 shadow w-1/2 transition duration-300"
+          id="computerChoiceCard"
+        >
+          <span class="text-gray-600 font-semibold mb-1">Ordinateur</span>
+          <span id="computerChoice" class="text-4xl font-bold">–</span>
+        </div>
+      </div>
+
+      <!-- Résultat -->
+      <h2 id="result" class="text-xl font-bold mb-6 text-gray-800">
+        Fais ton choix !
+      </h2>
+
+      <!-- Historique -->
+      <div class="mb-4">
+        <h3 class="text-gray-600 font-semibold mb-2">Historique :</h3>
+        <div
+          id="history"
+          class="flex flex-col-reverse gap-2 max-h-40 overflow-y-auto"
+        ></div>
+      </div>
+
+      <button
+        id="resetBtn"
+        class="bg-gray-300 text-gray-800 px-6 py-2 rounded-xl shadow hover:bg-gray-400 transition"
+      >
+        Réinitialiser
+      </button>
+    </div>
+
+    <script>
+      const choices = ["Pierre", "Feuille", "Ciseaux"];
+      const buttons = document.querySelectorAll(".choice-btn");
+      const playerChoice = document.getElementById("playerChoice");
+      const computerChoice = document.getElementById("computerChoice");
+      const result = document.getElementById("result");
+      const history = document.getElementById("history");
+      const resetBtn = document.getElementById("resetBtn");
+      const playerScoreEl = document.getElementById("playerScore");
+      const computerScoreEl = document.getElementById("computerScore");
+
+      let playerScore = 0;
+      let computerScore = 0;
+      const maxScore = 5; // Limite de score
+
+      function getComputerChoice() {
+        return choices[Math.floor(Math.random() * choices.length)];
+      }
+
+      function playRound(player, computer) {
+        if (player === computer) return "Égalité !";
+        if (
+          (player === "Pierre" && computer === "Ciseaux") ||
+          (player === "Feuille" && computer === "Pierre") ||
+          (player === "Ciseaux" && computer === "Feuille")
+        )
+          return "Tu gagnes ! 🎉";
+        return "L'ordinateur gagne ! 😢";
+      }
+
+      function checkWinner() {
+        if (playerScore >= maxScore) {
+          result.textContent = "🏆 Bravo, tu as gagné la partie !";
+          disableButtons();
+        } else if (computerScore >= maxScore) {
+          result.textContent = "💻 L'ordinateur remporte la partie...";
+          disableButtons();
+        }
+      }
+
+      function disableButtons() {
+        buttons.forEach((btn) => (btn.disabled = true));
+      }
+
+      function enableButtons() {
+        buttons.forEach((btn) => (btn.disabled = false));
+      }
+
+      // Ajout des cartes
+      const playerChoiceCard = document.getElementById("playerChoiceCard");
+      const computerChoiceCard = document.getElementById("computerChoiceCard");
+
+      const emojiMap = {
+        Pierre: "✊",
+        Feuille: "✋",
+        Ciseaux: "✌️",
+      };
+
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          if (playerScore >= maxScore || computerScore >= maxScore) return;
+
+          const player = btn.getAttribute("data-choice");
+          const computer = getComputerChoice();
+
+          playerChoice.textContent = emojiMap[player];
+          computerChoice.textContent = emojiMap[computer];
+
+          const roundResult = playRound(player, computer);
+          result.textContent = roundResult;
+
+          // Score
+          if (roundResult.includes("Tu gagnes")) playerScore++;
+          if (roundResult.includes("ordinateur")) computerScore++;
+          playerScoreEl.textContent = playerScore;
+          computerScoreEl.textContent = computerScore;
+
+          // Effet glow sur le gagnant du round
+          playerChoiceCard.classList.remove("winner");
+          computerChoiceCard.classList.remove("winner");
+          if (roundResult.includes("Tu gagnes"))
+            playerChoiceCard.classList.add("winner");
+          else if (roundResult.includes("ordinateur"))
+            computerChoiceCard.classList.add("winner");
+
+          // Historique
+          const div = document.createElement("div");
+          div.textContent = `Joueur: ${emojiMap[player]} - Ordi: ${emojiMap[computer]} → ${roundResult}`;
+          div.className = "p-2 rounded-lg shadow-sm text-sm font-medium";
+          if (roundResult.includes("Tu gagnes"))
+            div.classList.add("bg-green-100", "text-green-700");
+          if (roundResult.includes("ordinateur"))
+            div.classList.add("bg-red-100", "text-red-700");
+          if (roundResult.includes("Égalité"))
+            div.classList.add("bg-gray-100", "text-gray-700");
+          history.prepend(div);
+
+          checkWinner();
+        });
+      });
+
+      resetBtn.addEventListener("click", () => {
+        playerChoice.textContent = "–";
+        computerChoice.textContent = "–";
+        result.textContent = "Fais ton choix !";
+        playerScore = 0;
+        computerScore = 0;
+        playerScoreEl.textContent = playerScore;
+        computerScoreEl.textContent = computerScore;
+        history.innerHTML = "";
+        enableButtons();
+      });
+    </script>
+  </body>
+</html>
